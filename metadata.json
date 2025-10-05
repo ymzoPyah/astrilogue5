@@ -1,0 +1,7 @@
+{
+  "name": "SURVIVOR -- Astrilogue: The AI Conductor",
+  "description": "An advanced chat application where you can orchestrate dynamic conversations with multiple, distinct AI personalities. Features a unique 'Group Conversation' mode with an AI Scene Director to manage dialogue flow, and a focused '1-on-1' chat mode.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

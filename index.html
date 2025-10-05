@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astrilogue: The AI Conductor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            overflow-y: scroll; /* Force scrollbar to prevent layout shifts */
+        }
+        :root {
+            --cosmo-bg-base: #0B0B12;
+            --cosmo-bg-surface: #0F1017;
+            --cosmo-bg-overlay: #121322;
+            --cosmo-text-primary: #E6E8F2;
+            --cosmo-text-secondary: #AEB2C1;
+            --cosmo-text-muted: #7A7E8C;
+            --cosmo-accent-teal: #25F2E2;
+            --cosmo-accent-violet: #A27BFF;
+            --cosmo-accent-magenta: #FF52C6;
+            --cosmo-accent-gold: #F5C65D;
+            --cosmo-grid: rgba(162, 123, 255, 0.07);
+        }
+        body {
+            background-image: url(https://deffy.me/astrilogue/imgs/bg.png);
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: var(--cosmo-bg-base);
+            color: var(--cosmo-text-primary);
+        }
+        /* Custom animations to be used with Tailwind */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        /* Flip-in for vote cards */
+        @keyframes cardFlip {
+          0% { transform: rotateX(72deg) translateY(-8px) scale(0.98); opacity: 0; }
+          60% { transform: rotateX(-6deg) translateY(0) scale(1.02); opacity: 1; }
+          100% { transform: rotateX(0) scale(1); }
+        }
+        .hex-background {
+            --hex-color: var(--cosmo-grid);
+            background-color: transparent;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath fill='%23a27bff' fill-opacity='0.07' d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99 7.5V30L0 22.5zM28 15L15 22.5V30L28 22.5z'/%3E%3C/svg%3E");
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+        }
+        .hex-background.visible {
+            opacity: 1;
+        }
+        
+        /* Minimal button tokens for Survivor vote reveal */
+        .btn { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem; padding: 0.625rem 0.875rem; font-weight: 700; }
+        .btn-primary { background: radial-gradient(60% 80% at 30% 0%, rgba(160,120,255,.3), rgba(34,211,238,.25)), #17182c; color: #eef2ff; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 0 24px rgba(120,80,255,.18); }
+        .btn-primary:hover { filter: brightness(1.05); }
+        .btn-secondary { background: #111225; color: #e6e8f2; border: 1px solid rgba(255,255,255,.08); }
+        .btn-ghost { background: transparent; color: #b9bfd6; border: 1px solid transparent; }
+        .btn:disabled { opacity: .5; cursor: not-allowed; }
+        
+        /* --- Reduced Motion --- */
+        @media (prefers-reduced-motion: reduce) {
+          html:focus-within {
+           scroll-behavior: auto;
+          }
+          *,
+          *::before,
+          *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
+        }
+        [data-motion="reduced"] *,
+        [data-motion="reduced"] *::before,
+        [data-motion="reduced"] *::after {
+            animation-delay: -1ms !important;
+            animation-duration: 1ms !important;
+            animation-iteration-count: 1 !important;
+            background-attachment: initial !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0s !important;
+            transition-delay: 0s !important;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.22.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="font-sans overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
